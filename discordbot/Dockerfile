@@ -10,3 +10,4 @@ WORKDIR /app
 RUN go build -o bot .
 
 ENTRYPOINT ["/app/bot"]
+CMD ["--silent"]
