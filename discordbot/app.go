@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	"github.com/m4schini/kapitol-go"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,6 +15,8 @@ const (
 	splanUrl              = "https://intern.fh-wedel.de/~splan/"
 	splanTimestampEnvName = "SPLAN_GENERATED_AT"
 )
+
+var log = kapitol.NewLogger("splan-bot", kapitol.Debug)
 
 var (
 	Token         string
@@ -34,7 +36,8 @@ func init() {
 func main() {
 	bot, err := NewBot(Token, AdminUserId)
 	if err != nil {
-		log.Panicln(err)
+		log.Critical(err)
+		panic(err)
 	}
 
 	if !SuppressStart {
@@ -49,20 +52,26 @@ func main() {
 
 					err := bot.SendDirectMessage(AdminUserId, err)
 					if err != nil {
-						log.Fatalln(err)
+						log.Critical(err)
+						panic(err)
 					}
 				}
 			},
 			func(v interface{}) {
 				err := bot.SendDirectMessage(AdminUserId, v)
 				if err != nil {
-					log.Fatalln(err)
+					log.Critical(err)
+					panic(err)
 				}
 			},
 			5*time.Minute)
 		if err != nil {
-			bot.SendDirectMessage(AdminUserId, err)
-			log.Panicln(err)
+			err2 := bot.SendDirectMessage(AdminUserId, err)
+			if err2 != nil {
+				log.Error(err2)
+			}
+			log.Critical(err)
+			panic(err)
 		}
 	}()
 
@@ -75,7 +84,7 @@ func main() {
 	// Cleanly close down the Discord session.
 	err = bot.SendMessage(AdminUserId, "I'll be back")
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	bot.Close()
 }
