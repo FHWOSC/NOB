@@ -34,6 +34,8 @@ func init() {
 }
 
 func main() {
+	go log.ConnectToHub("docker.malteschink.de:1337", "http://docker.malteschink.de:1338")
+
 	bot, err := NewBot(Token, AdminUserId)
 	if err != nil {
 		log.Critical(err)
