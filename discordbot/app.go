@@ -16,7 +16,12 @@ const (
 	splanTimestampEnvName = "SPLAN_GENERATED_AT"
 )
 
-var log = kapitol.NewLogger("splan-bot", kapitol.Debug)
+var log = func() *kapitol.Logger {
+	logger := kapitol.NewLogger("splan-bot", kapitol.Debug)
+	logger.Ip = kapitol.GetMyIP("http://kapitol.malteschink.de:1338")
+	go logger.StreamTo(":1337")
+	return logger
+}()
 
 var (
 	Token         string
@@ -34,8 +39,6 @@ func init() {
 }
 
 func main() {
-	go log.ConnectToHub("docker.malteschink.de:1337", "http://docker.malteschink.de:1338")
-
 	bot, err := NewBot(Token, AdminUserId)
 	if err != nil {
 		log.Critical(err)
@@ -88,5 +91,6 @@ func main() {
 	if err != nil {
 		log.Error(err)
 	}
+	log.Close()
 	bot.Close()
 }

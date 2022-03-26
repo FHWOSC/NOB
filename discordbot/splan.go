@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -24,7 +23,7 @@ func StartSplanChecks(onChange func(interface{}), onError func(interface{}), coo
 				ts.Format("02 Jan 2006 15:04"),
 			))
 		} else {
-			log.Println("Vorlesungsplan immer noch der alte")
+			log.Information("splan check completed: splan didn't change")
 		}
 
 		time.Sleep(cooldown)
@@ -69,7 +68,7 @@ func CheckTimestamp() (bool, *time.Time, error) {
 	if err != nil {
 		return false, nil, err
 	}
-	log.Println("current:", current)
+	log.Debug("current:", current)
 
 	env := os.Getenv(splanTimestampEnvName)
 	err = UpdateTimestamp(current)
@@ -81,10 +80,10 @@ func CheckTimestamp() (bool, *time.Time, error) {
 	if err != nil {
 		return false, &current, err
 	}
-	log.Println("before:", before)
+	log.Debug("before:", before)
 
 	changed := !current.Equal(before)
-	log.Println("Vorlesungsplan changed:", changed)
+	log.Debug("Vorlesungsplan changed:", changed)
 	return changed, &current, nil
 }
 
