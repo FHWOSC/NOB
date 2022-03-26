@@ -19,7 +19,12 @@ const (
 var log = func() *kapitol.Logger {
 	logger := kapitol.NewLogger("splan-bot", kapitol.Debug)
 	logger.Ip = kapitol.GetMyIP("http://kapitol.malteschink.de:1338")
-	go logger.StreamTo(":1337")
+
+	addr := os.Getenv("KAPITOL_ADDR")
+	if addr != "" {
+		go logger.StreamTo(addr)
+	}
+
 	return logger
 }()
 
