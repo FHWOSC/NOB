@@ -31,7 +31,10 @@ func main() {
 
 	router := routerpkg.New(broker, discordBot)
 	go router.RegisterModule(modules.SplanUpdateModule)
-	go router.RegisterModule(modules.LoggerModule)
+	//go router.RegisterModule(modules.LoggerModule)
+	go router.RegisterModule(modules.CatchAllModule)
+	go router.RegisterModule(modules.TvInfoUpdateModule)
+	go router.RegisterModule(modules.TvInfoImageUpdateModule)
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")

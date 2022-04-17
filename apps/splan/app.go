@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"splan/event"
@@ -18,11 +17,11 @@ func main() {
 	log.Println("running...")
 
 	p := parser.New()
-	ts, err := time.Parse("02.01.2006, 15:04", "13.03.2022, 08:24")
-	if err != nil {
-		panic(err)
-	}
-	p.SetTimestamp(ts)
+	//ts, err := time.Parse("02.01.2006, 15:04", "13.03.2022, 08:24")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//p.SetTimestamp(ts)
 
 	broker := event.NewBroker(
 		os.Getenv("MESSAGE_BROKER_ADDR"),
@@ -33,7 +32,7 @@ func main() {
 	Log := func(v ...any) {
 		log.Println(v...)
 
-		broker.Publish("splan.logged", fmt.Sprint(v...))
+		//broker.Publish("splan.logged", fmt.Sprint(v...))
 	}
 
 	for {

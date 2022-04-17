@@ -4,18 +4,22 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	_ "github.com/bwmarrin/discordgo"
+	"io"
+	"log"
 	"os"
 )
 
 type Channel string
 
 const (
-	FHW          Channel = "CHID_FHW"
+	Log          Channel = "CHID_LOG"
+	TvInfo       Channel = "CHID_TVINFO"
 	Announcement Channel = "CHID_ANNOUNCEMENT"
 )
 
 type Bot interface {
 	SendMessage(channel Channel, message string) error
+	SendImage(channel Channel, message string, img io.Reader) error
 	Close()
 }
 
@@ -43,7 +47,8 @@ func New(token string) (*bot, error) {
 
 	b.session = dg
 
-	setId(b.channelIDs, FHW, os.Getenv(string(FHW)))
+	setId(b.channelIDs, Log, os.Getenv(string(Log)))
+	setId(b.channelIDs, TvInfo, os.Getenv(string(TvInfo)))
 	setId(b.channelIDs, Announcement, os.Getenv(string(Announcement)))
 
 	return b, nil
@@ -59,7 +64,31 @@ func (b *bot) SendMessage(channel Channel, message string) error {
 		return err
 	}
 
+	log.Println("trying to send discord message to channel", string(channel), "=>", id)
 	_, err = b.session.ChannelMessageSend(id, message)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *bot) SendImage(channel Channel, message string, img io.Reader) error {
+	id, err := b.getId(channel)
+	if err != nil {
+		return err
+	}
+
+	log.Println("trying to send discord message with image to channel", string(channel), "=>", id)
+	msg := &discordgo.MessageSend{
+		File: &discordgo.File{
+			Name:        "image.png",
+			ContentType: "image/png",
+			Reader:      img,
+		},
+		Content: message,
+	}
+	_, err = b.session.ChannelMessageSendComplex(id, msg)
 	if err != nil {
 		return err
 	}
@@ -86,6 +115,8 @@ func setId(channels map[Channel]string, channel Channel, id string) {
 	if string(channel) == "" {
 		return
 	}
+
+	log.Println(string(channel), "=", id)
 
 	channels[channel] = id
 }

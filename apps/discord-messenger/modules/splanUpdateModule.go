@@ -4,6 +4,7 @@ import (
 	"discord-messenger/discord"
 	"discord-messenger/handler"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -19,11 +20,14 @@ var SplanUpdateModule = handler.Module{
 func splanTimestampHandler(bot discord.Bot, channel, pattern, payload string) {
 	ts, err := time.Parse(time.RFC3339, payload)
 	if err != nil {
-		return
+		log.Println("ERR - splanTimestamp:", err)
 	}
 
-	bot.SendMessage(discord.FHW, fmt.Sprintf("\n Neuer Vorlesungsplan: %s\n(%s)",
+	err = bot.SendMessage(discord.Announcement, fmt.Sprintf("\n Neuer Vorlesungsplan: %s\n(%s)",
 		splanUrl,
 		ts.Format("02 Jan 2006 15:04"),
 	))
+	if err != nil {
+		log.Println("ERR - splanTimestamp:", err)
+	}
 }

@@ -14,6 +14,10 @@ services:
       - redis
     environment:
       - MESSAGE_BROKER_ADDR=redis:6379
+      - DISCORD_TOKEN=$DISCORD_BOT_TOKEN
+      - CHID_ANNOUNCEMENT=$CHANNEL_ANNOUNCEMENT
+      - CHID_LOG=$CHANNEL_LOG
+      - CHID_TVINFO=$CHANNEL_TVINFO
   splan-bot:
     image: 'fhw/splan-bot'
     build:
@@ -24,10 +28,18 @@ services:
     environment:
       - MESSAGE_BROKER_ADDR=redis:6379
       - PROXY_ADDR=http://tor-proxy:8888
+  tvinfo-bot:
+    image: 'fhw/tvinfo-bot'
+    build:
+      context: ./tvinfo
+    depends_on:
+      - redis
+      - tor-proxy
+    environment:
+      - MESSAGE_BROKER_ADDR=redis:6379
+      - PROXY_ADDR=http://tor-proxy:8888
 
   tor-proxy:
-    profiles:
-      - standalone
     image: 'pickapp/tor-proxy'
     environment:
       - IP_CHANGE_INTERVAL=270

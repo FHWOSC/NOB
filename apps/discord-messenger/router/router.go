@@ -34,6 +34,7 @@ func (r *Router) Register(pattern string, handlerFunc handler.HandlerFunc) (erro
 	})
 	if err != nil {
 		cancel()
+		log.Println("ERROR WHILE EXECUTING HANDLER:", err)
 		return err, nil
 	}
 
