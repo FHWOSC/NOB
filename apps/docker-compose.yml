@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  redis:
+    image: 'redis:latest'
+    ports:
+      - "6379:6379"
+
+  discord-messenger:
+    image: 'fhw/discord-messenger'
+    build:
+      context: ./discord-messenger
+    depends_on:
+      - redis
+    environment:
+      - MESSAGE_BROKER_ADDR=redis:6379
+  splan-bot:
+    image: 'fhw/splan-bot'
+    build:
+      context: ./splan
+    depends_on:
+      - redis
+      - tor-proxy
+    environment:
+      - MESSAGE_BROKER_ADDR=redis:6379
+      - PROXY_ADDR=http://tor-proxy:8888
+
+  tor-proxy:
+    profiles:
+      - standalone
+    image: 'pickapp/tor-proxy'
+    environment:
+      - IP_CHANGE_INTERVAL=270
+    ports:
+      - '8888:8888'

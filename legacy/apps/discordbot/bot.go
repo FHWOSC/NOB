@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"log"
 )
 
 type Bot struct {
@@ -34,10 +35,10 @@ func NewBot(discordToken, adminUserId string) (*Bot, error) {
 }
 
 func (b *Bot) Log(v ...interface{}) {
-	log.Debug(v...)
+	log.Println(v...)
 	err := b.SendDirectMessage(b.adminId, fmt.Sprintf("%s", v))
 	if err != nil {
-		log.Critical(err)
+		log.Println(err)
 		panic(err)
 	}
 }
@@ -52,7 +53,7 @@ func (b *Bot) SendMessage(channelId string, msg interface{}) error {
 func (b *Bot) SendDirectMessage(userId string, msg interface{}) error {
 	channel, err := b.openUserChannel(userId)
 	if err != nil {
-		log.Error("error opening DM channel:", err)
+		log.Println("error opening DM channel:", err)
 		return err
 	}
 
