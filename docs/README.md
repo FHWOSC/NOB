@@ -3,7 +3,7 @@ FHW
 
 # Overview
 
-![Architecture Overview]()
+![Architecture Overview](fhw.drawio.png)
 
 # Apps
 ## splan
