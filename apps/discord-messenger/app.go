@@ -1,8 +1,10 @@
 package main
 
 import (
-	"context"
+	"discord-messenger/discord"
 	"discord-messenger/event"
+	"discord-messenger/modules"
+	routerpkg "discord-messenger/router"
 	"fmt"
 	"log"
 	"os"
@@ -19,27 +21,17 @@ func main() {
 	)
 	defer broker.Close()
 
-	go func() {
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		err := broker.Subscribe(ctx, "splan.timestamp.changed", func(_, _, payload string) {
-			fmt.Println("TIMESTAMP CHANGED =>", payload)
-		})
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}()
+	discordBot, err := discord.New(
+		os.Getenv("DISCORD_TOKEN"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer discordBot.Close()
 
-	go func() {
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		err := broker.Subscribe(ctx, "*logged*", func(channel, pattern, payload string) {
-			fmt.Printf("LOG > [%s|%s] %s\n", channel, pattern, payload)
-		})
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}()
+	router := routerpkg.New(broker, discordBot)
+	go router.RegisterModule(modules.SplanUpdateModule)
+	go router.RegisterModule(modules.LoggerModule)
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
