@@ -24,7 +24,14 @@ func main() {
 	hashes := make(map[string]bool)
 
 	var timestamp *time.Time
-	timestamp = nil
+	if os.Getenv("TVINFO_TIMESTAMP") != "" {
+		ts, err := time.Parse(time.RFC3339, os.Getenv("TVINFO_TIMESTAMP"))
+		if err != nil {
+			timestamp = nil
+		}
+
+		timestamp = &ts
+	}
 
 	for {
 		log.Println("start")
@@ -42,15 +49,18 @@ func main() {
 func runScan(broker *event.Broker, hashes map[string]bool, timestamp *time.Time) *time.Time {
 	ts, urls, err := tvinfo.GetTvInfo()
 	if err != nil {
+		log.Println("ERR:", err)
 		return nil
 	}
 
 	firstRun := timestamp == nil
 
 	if firstRun || ts.After(*timestamp) {
+		log.Println("no timestamp saved: tvinfo first scan")
+
 		buffers, err := tvinfo.GetImages(urls)
 		if err == nil {
-			log.Println("sending new images")
+			log.Println("sending timestamp update:", ts.Format(time.RFC3339))
 
 			broker.Publish("tvinfo.updated", ts.Format(time.RFC3339))
 
@@ -68,13 +78,10 @@ func runScan(broker *event.Broker, hashes map[string]bool, timestamp *time.Time)
 				}
 			}
 		}
+
+		return ts
 	} else {
 		log.Println("timestamp didn't change")
-	}
-
-	if firstRun {
-		log.Println("first run", ts)
-		return ts
 	}
 	return nil
 }
