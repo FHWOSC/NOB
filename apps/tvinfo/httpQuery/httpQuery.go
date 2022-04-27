@@ -1,4 +1,4 @@
-package parser
+package httpQuery
 
 import (
 	"bytes"
@@ -10,17 +10,7 @@ import (
 	"os"
 )
 
-type Parser struct {
-	client *http.Client
-}
-
 var httpc = getHttpClient()
-
-func New() *Parser {
-	p := new(Parser)
-	p.client = getHttpClient()
-	return p
-}
 
 func GetDoc(url string) (*goquery.Document, error) {
 	res, err := httpc.Get(url)

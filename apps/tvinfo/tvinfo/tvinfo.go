@@ -6,11 +6,11 @@ import (
 	"log"
 	"strings"
 	"time"
-	"tvinfo/parser"
+	"tvinfo/httpQuery"
 )
 
 func GetTvInfo() (*time.Time, []string, error) {
-	doc, err := parser.GetDoc("https://intern.fh-wedel.de/scala/?no_cache=1")
+	doc, err := httpQuery.GetDoc("https://intern.fh-wedel.de/scala/?no_cache=1")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -18,7 +18,7 @@ func GetTvInfo() (*time.Time, []string, error) {
 	var ts time.Time
 	doc.Find(".tx-fhwscala-pi1 div").First().Each(func(i int, s *goquery.Selection) {
 		text := strings.Trim(s.Text(), " \n")
-		ts, err = time.Parse("Die Inhalte des CampusInfo-Systems wurden zuletzt am 02.04.2006 um 15:04 Uhr geändert.", text)
+		ts, err = time.Parse("Die Inhalte des CampusInfo-Systems wurden zuletzt am 02.01.2006 um 15:04 Uhr geändert.", text)
 		if err != nil {
 			return
 		}
@@ -39,7 +39,7 @@ func GetImages(urls []string) ([]*bytes.Buffer, error) {
 	imgs := make([]*bytes.Buffer, 0)
 
 	for _, url := range urls {
-		buf, err := parser.Get(url)
+		buf, err := httpQuery.Get(url)
 		if err != nil {
 			log.Println(err)
 			return nil, err
